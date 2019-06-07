@@ -1,6 +1,4 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -27,7 +25,7 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
            services.AddDbContext<ApplicationDbContext>(options =>
-           options.UseSqlServer(Configuration.GetConnectionString("Database")));
+           options.UseSqlServer(Configuration.GetConnectionString("SqlConnection")));
 
             services.AddIdentity<User, UserRole>()
                     .AddEntityFrameworkStores<ApplicationDbContext>()

@@ -9,7 +9,7 @@ services:
       dockerfile: API/Dockerfile
     depends_on:
       - sql.data
-
+      
   sql.data:
     image: "mcr.microsoft.com/mssql/server"
     environment:
