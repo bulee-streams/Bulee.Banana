@@ -6,9 +6,4 @@ services:
     build:
       context: .
       dockerfile: API/Dockerfile
-  
-  apiunittests:
-    image: ${DOCKER_REGISTRY-}apiunittests
-    build:
-      context: .
-      dockerfile: API.UnitTests/Dockerfile
+ 
