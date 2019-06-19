@@ -31,12 +31,13 @@ namespace API.Controllers
         public async Task<IActionResult> Register([FromForm] RegiserViewModel data)
         {
             var user = mapper.Map<User>(data);
+            user.TimeAdded = DateTime.Now;
 
             var result = await userManager.CreateAsync(user, data.Password);
-            if(result.Succeeded)
+            if(!result.Succeeded)
             {
-                user.TimeAdded = DateTime.Now;
-                logger.Log(LogLevel.Information, "User: " + user.UserName + " has been registered");
+                logger.Log(LogLevel.Error, "User: " + user.UserName + " hasn't been registered");
+                return BadRequest();
             }
 
             return Ok();
