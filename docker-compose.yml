@@ -1,19 +1,14 @@
 version: '3.4'
 
 services:
-
   api:
     image: ${DOCKER_REGISTRY-}api
     build:
       context: .
       dockerfile: API/Dockerfile
-    depends_on:
-      - sql.data
-      
-  sql.data:
-    image: "mcr.microsoft.com/mssql/server"
-    environment:
-      SA_PASSWORD: "iKCfM7i3oRi6"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
+  
+  apiunittests:
+    image: ${DOCKER_REGISTRY-}apiunittests
+    build:
+      context: .
+      dockerfile: API.UnitTests/Dockerfile
