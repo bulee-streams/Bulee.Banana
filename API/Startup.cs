@@ -48,7 +48,6 @@ namespace API
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
                 options.Password.RequiredLength = 8;
-                options.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings
                 options.Lockout.MaxFailedAccessAttempts = 5;

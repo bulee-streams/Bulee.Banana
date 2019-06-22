@@ -28,7 +28,7 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromForm] RegiserViewModel data)
+        public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
             var user = mapper.Map<User>(data);
             user.TimeAdded = DateTime.Now;

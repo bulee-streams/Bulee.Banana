@@ -4,7 +4,7 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>83692ac7-4a85-42aa-9edd-91c4dddc6638</ProjectGuid>
-    <DockerLaunchAction>None</DockerLaunchAction>
+    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>api</DockerServiceName>
   </PropertyGroup>
