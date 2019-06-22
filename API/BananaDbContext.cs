@@ -7,9 +7,9 @@ using API.Models;
 
 namespace API.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<User, UserRole, Guid>
+    public class BananaDbContext : IdentityDbContext<User, UserRole, Guid>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public BananaDbContext(DbContextOptions<BananaDbContext> options)
             :base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)

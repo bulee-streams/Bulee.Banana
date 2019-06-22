@@ -1,4 +1,5 @@
 ﻿using System;
+using API.Context;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Serilog;
@@ -20,7 +21,7 @@ namespace API
             try
             {
                 Log.Information("Starting web host");
-                CreateWebHostBuilder(args).Build().Run();
+                CreateWebHostBuilder(args).Build().MigrateDatabase<BananaDbContext>().Run();
                 return 0;
             }
             catch (Exception ex)

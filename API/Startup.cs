@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using API.Roles;
 using API.Models;
 using API.Context;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace API
 {
@@ -24,11 +26,16 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           services.AddDbContext<ApplicationDbContext>(options =>
-           options.UseSqlServer(Configuration.GetConnectionString("SqlConnection")));
+            var config = new StringBuilder(Configuration["ConnectionStrings:BananaConnectionMssql"]);
+
+            var conn = config.Replace("ENVPW", Configuration["DB_PW"])
+                             .ToString();
+
+            services.AddDbContext<BananaDbContext>(options =>
+                            options.UseSqlServer(conn));
 
             services.AddIdentity<User, UserRole>()
-                    .AddEntityFrameworkStores<ApplicationDbContext>()
+                    .AddEntityFrameworkStores<BananaDbContext>()
                     .AddDefaultTokenProviders();
 
             services.AddAutoMapper(typeof(Startup));
