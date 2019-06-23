@@ -114,7 +114,7 @@ namespace API.UnitTests
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();
-            error.Message.Should().Be("Value cannot be null.\r\nParameter name: logger");
+            error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: logger");
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace API.UnitTests
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();
-            error.Message.Should().Be("Value cannot be null.\r\nParameter name: userManager");
+            error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: userManager");
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace API.UnitTests
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();
-            error.Message.Should().Be("Value cannot be null.\r\nParameter name: mapper");
+            error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: mapper");
         }
 
         [Fact]
