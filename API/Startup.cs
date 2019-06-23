@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using API.Roles;
+using API.Models;
+using API.Context;
+using AutoMapper;
+
 
 namespace API
 {
@@ -28,8 +26,40 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IDbConnection>(sp => new SqlConnection(Configuration.GetConnectionString("Database")));
+            var config = new StringBuilder(Configuration["ConnectionStrings:BananaConnectionMssql"]);
+
+            var conn = config.Replace("ENVPW", Configuration["DB_PW"])
+                             .ToString();
+
+            services.AddDbContext<BananaDbContext>(options =>
+                            options.UseSqlServer(conn));
+
+            services.AddIdentity<User, UserRole>()
+                    .AddEntityFrameworkStores<BananaDbContext>()
+                    .AddDefaultTokenProviders();
+
             services.AddAutoMapper(typeof(Startup));
+
+            services.Configure<IdentityOptions>(options => 
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+
+                // Lockout settings
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+                
+                // User settings
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -47,7 +77,14 @@ namespace API
             }
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseAuthentication();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
