@@ -9,8 +9,7 @@ namespace API.IntegrationTests
     {
         private readonly HttpClient client;
 
-        public UsersControllerTests(CustomWebApplicationFactory<Startup> factory)
-        {
+        public UsersControllerTests(CustomWebApplicationFactory<Startup> factory) {
             client = factory.CreateClient();
         }
 
