@@ -59,7 +59,14 @@ namespace API
                 options.User.RequireUniqueEmail = false;
             });
 
-
+            services.AddSwaggerDocument(swagCon => 
+            {
+                swagCon.PostProcess = document =>
+                {
+                    document.Info.Title = "Bulee.Banana API";
+                    document.Info.Description = "User management API";
+                };
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -78,6 +85,9 @@ namespace API
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
 
             app.UseMvc(routes =>
             {
