@@ -1,8 +1,3 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - develop
 
@@ -13,7 +8,14 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: DotNetCoreCLI@2
+- script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
+  displayName: Run unit tests
+
+- script: dotnet test API.IntegrationTests/API.IntegrationTests.csproj --logger trx
+  displayName: Run integration tests
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
   inputs:
-    command: 'test'
-    projects: '**/*.csproj'
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
