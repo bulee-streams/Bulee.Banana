@@ -21,24 +21,25 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- task: Docker@1
-  displayName: Build image
+- task: DockerCompose@0
+  displayName: Build services
   inputs:
-    command: Build an image
-    containerregistrytype: Container Registry
-    azureContainerRegistry: azureRegistry
-    dockerFile: API/Dockerfile
-    imageName: $(imageName)
-    imageNamesPath: 
-    restartPolicy: always
+    action: Build services
+    azureSubscriptionEndpoint: bulee_resource_connection
+    azureContainerRegistry: $(azureContainerRegistry)
+    dockerComposeFile: docker-compose.yml
+    projectName: $(Build.Repository.Name)
+    qualifyImageNames: true
+    additionalImageTags: $(Build.BuildId)
 
-- task: Docker@1
-  displayName: Push Image
+
+- task: DockerCompose@0
+  displayName: Push services
   inputs:
-    command: Push an image
-    containerregistrytype: Container Registry
-    azureContainerRegistry: azureRegistry
-    dockerFile: API/Dockerfile
-    imageName: $(imageName)
-    imageNamesPath: 
-    restartPolicy: always
+    action: Push services
+    azureSubscriptionEndpoint: bulee_resource_connection
+    azureContainerRegistry: $(azureContainerRegistry)
+    dockerComposeFile: docker-compose.yml
+    projectName: $(Build.Repository.Name)
+    qualifyImageNames: true
+    additionalImageTags: $(Build.BuildId)
