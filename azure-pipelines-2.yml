@@ -22,12 +22,12 @@ steps:
     testResultsFiles: '**/*.trx'
 
 - task: Docker@1
-  displayName: Build imageName
+  displayName: Build image
   inputs:
     command: Build an image
     containerregistrytype: Container Registry
     azureContainerRegistry: azureRegistry
-    dockerFile: dockerFile
+    dockerFile: Dockerfile
     imageName: $(imageName)
     imageNamesPath: 
     restartPolicy: always
