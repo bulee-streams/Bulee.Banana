@@ -6,6 +6,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  imageName: 'bulee-banana:$(build.buildNumber)'
 
 steps:
 - script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
@@ -19,3 +20,25 @@ steps:
   inputs:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
+
+- task: Docker@1
+  displayName: Build imageName
+  inputs:
+    command: Build an image
+    containerregistrytype: Container Registry
+    dockerHostEndpoint: banana docker registry 
+    dockerFile: dockerFile
+    imageName: $(imageName)
+    imageNamesPath: 
+    restartPolicy: always
+
+- task: Docker@1
+  displayName: Push Image
+  inputs:
+    command: Push an image
+    containerregistrytype: Container Registry
+    dockerHostEndpoint: banana docker registry
+    dockerFile: Dockerfile
+    imageName: $(imageName)
+    imageNamesPath: 
+    restartPolicy: always
