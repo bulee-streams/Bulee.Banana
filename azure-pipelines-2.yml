@@ -32,13 +32,25 @@ steps:
     imageNamesPath: 
     restartPolicy: always
 
-- task: Docker@1
-  displayName: Push Image
+- task: DockerCompose@0
+  displayName: Build services
   inputs:
-    command: Push an image
-    containerregistrytype: Container Registry
-    azureContainerRegistry: azureRegistry
-    dockerFile: API/Dockerfile
-    imageName: $(imageName)
-    imageNamesPath: 
-    restartPolicy: always
+    action: Build services
+    azureSubscriptionEndpoint: azureRegistry
+    azureContainerRegistry: $(azureContainerRegistry)
+    dockerComposeFile: docker-compose.yml
+    projectName: $(Build.Repository.Name)
+    qualifyImageNames: true
+    additionalImageTags: $(Build.BuildId)
+
+
+- task: DockerCompose@0
+  displayName: Push services
+  inputs:
+    action: Push services
+    azureSubscriptionEndpoint: azureRegistry
+    azureContainerRegistry: $(azureContainerRegistry)
+    dockerComposeFile: docker-compose.yml
+    projectName: $(Build.Repository.Name)
+    qualifyImageNames: true
+    additionalImageTags: $(Build.BuildId)
