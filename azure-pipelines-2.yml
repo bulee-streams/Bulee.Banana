@@ -16,7 +16,7 @@ steps:
 - script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
   displayName: Run unit tests
 
-- script: dotnet test API.IntergrationTests/API.IntergrationTests.csproj --logger trx
+- script: dotnet test API.IntegrationTests/API.IntegrationTests.csproj --logger trx
   displayName: Run integration tests
 
 - task: PublishTestResults@2
