@@ -21,17 +21,6 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- task: Docker@1
-  displayName: Build image
-  inputs:
-    command: Build an image
-    containerregistrytype: Container Registry
-    azureContainerRegistry: azureRegistry
-    dockerFile: API/Dockerfile
-    imageName: $(imageName)
-    imageNamesPath: 
-    restartPolicy: always
-
 - task: DockerCompose@0
   displayName: Build services
   inputs:
