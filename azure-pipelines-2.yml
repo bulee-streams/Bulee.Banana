@@ -13,4 +13,18 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: docker build -t $(dockerId)/$(imageName) .  # add options to this command to meet your needs
+- script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
+  displayName: Run unit tests
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
+
+- script: dotnet test API.IntergrationTests/API.IntergrationTests.csproj --logger trx
+  displayName: Run integration tests
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
