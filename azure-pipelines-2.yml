@@ -27,7 +27,7 @@ steps:
     command: Build an image
     containerregistrytype: Container Registry
     azureContainerRegistry: azureRegistry
-    dockerFile: Dockerfile
+    dockerFile: API/Dockerfile
     imageName: $(imageName)
     imageNamesPath: 
     restartPolicy: always
@@ -38,7 +38,7 @@ steps:
     command: Push an image
     containerregistrytype: Container Registry
     azureContainerRegistry: azureRegistry
-    dockerFile: Dockerfile
+    dockerFile: API/Dockerfile
     imageName: $(imageName)
     imageNamesPath: 
     restartPolicy: always
