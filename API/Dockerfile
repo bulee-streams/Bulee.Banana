@@ -5,12 +5,10 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 COPY ["API/API.csproj", "API/"]
-
 RUN dotnet restore "API/API.csproj"
-
 COPY . .
-WORKDIR "/src"
-RUN dotnet build "API/API.csproj" -c Release -o /app
+WORKDIR "/src/API"
+RUN dotnet build "API.csproj" -c Release -o /app
 
 FROM build AS publish
 RUN dotnet publish "API.csproj" -c Release -o /app
