@@ -14,7 +14,7 @@ namespace API.Context
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder); 
+            base.OnModelCreating(builder);
         }
     }
 }
