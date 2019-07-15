@@ -19,27 +19,3 @@ steps:
   inputs:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
-
-- task: DockerCompose@0
-  displayName: Build services
-  inputs:
-    action: Build services
-    azureSubscriptionEndpoint: bulee_resource_connection
-    azureContainerRegistry: $(azureContainerRegistry)
-    dockerComposeFile: docker-compose.yml
-    projectName: $(Build.Repository.Name)
-    qualifyImageNames: true
-    additionalImageTags: $(Build.BuildId)
-
-
-- task: DockerCompose@0
-  displayName: Push services
-  inputs:
-    action: Push services
-    containerregistrytype: Azure Container Registry
-    azureSubscriptionEndpoint: bulee_resource_connection
-    azureContainerRegistry: $(azureContainerRegistry)
-    dockerComposeFile: docker-compose.yml
-    projectName: $(Build.Repository.Name)
-    qualifyImageNames: true
-    additionalImageTags: $(Build.BuildId)
