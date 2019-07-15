@@ -29,7 +29,7 @@ namespace API.Controllers
 
         [HttpGet("test")]
         public string Test() =>
-            "This is a test !";
+            "This is an actual test !";
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
