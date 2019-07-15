@@ -10,7 +10,7 @@ namespace API.Context
     public class BananaDbContext : IdentityDbContext<User, UserRole, Guid>
     {
         public BananaDbContext(DbContextOptions<BananaDbContext> options)
-            :base(options) { }
+            :base(options) {}
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
