@@ -27,7 +27,7 @@ steps:
     containerregistrytype: Azure Container Registry
     azureSubscriptionEndpoint: bulee_resource_connection
     azureContainerRegistry: $(azureContainerRegistry)
-    dockerFile: API/Dockerfile.CI
+    dockerFile: Dockerfile
     imageName: $(imageName)
     restartPolicy: always
 
@@ -38,6 +38,6 @@ steps:
     containerregistrytype: Azure Container Registry
     azureSubscriptionEndpoint: bulee_resource_connection
     azureContainerRegistry: $(azureContainerRegistry)
-    dockerFile: API/Dockerfile.CI
+    dockerFile: Dockerfile
     imageName: $(imageName)
     restartPolicy: always
