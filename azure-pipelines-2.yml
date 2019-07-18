@@ -29,7 +29,6 @@ steps:
     azureContainerRegistry: $(azureContainerRegistry)
     dockerFile: API/Dockerfile.CI
     imageName: $(imageName)
-    imageNamesPath: 
     restartPolicy: always
 
 - task: Docker@1
@@ -41,5 +40,4 @@ steps:
     azureContainerRegistry: $(azureContainerRegistry)
     dockerFile: API/Dockerfile.CI
     imageName: $(imageName)
-    imageNamesPath: 
     restartPolicy: always
