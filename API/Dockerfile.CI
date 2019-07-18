@@ -6,7 +6,7 @@ ENV ConnectionStrings:BananaConnectionMssql="Server=tcp:bulee-banana.database.wi
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 COPY ["API.csproj", "API"]
-RUN dotnet restore "API.csproj"
+RUN dotnet restore "API/API.csproj"
 COPY . .
 WORKDIR "/src/API"
 RUN dotnet build "API.csproj" -c Release -o /app
