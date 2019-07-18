@@ -4,12 +4,12 @@ EXPOSE 80
 ENV ConnectionStrings:BananaConnectionMssql="Server=tcp:bulee-banana.database.windows.net,1433;Initial Catalog=user;Persist Security Info=False;User ID=kinaetron;Password=t9P'_.@ye;occT;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
 # Copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
+COPY API.csproj ./
+RUN dotnet restore API.csproj
 
 # Copy everything else and build
-COPY . ./
-RUN dotnet publish -c Release -o out
+COPY . .
+RUN dotnet publish API.csproj -c Release -o out
 
 # Build runtime image
 FROM microsoft/aspnetcore:2.0
