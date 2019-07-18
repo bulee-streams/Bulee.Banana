@@ -1,11 +1,11 @@
-﻿FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
 WORKDIR /app
 EXPOSE 80
 ENV ConnectionStrings:BananaConnectionMssql="Server=tcp:bulee-banana.database.windows.net,1433;Initial Catalog=user;Persist Security Info=False;User ID=kinaetron;Password=t9P'_.@ye;occT;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
-COPY ["API.csproj", "API"]
+COPY ["API/API.csproj", "API/"]
 RUN dotnet restore "API/API.csproj"
 COPY . .
 WORKDIR "/src/API"
