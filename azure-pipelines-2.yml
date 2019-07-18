@@ -2,7 +2,7 @@ pr:
 - master
 
 pool:
-  vmImage: 'vs2019-latest'
+  vmImage: 'vs2017-win2016'
 
 variables:
     buildConfiguration: 'Release'
