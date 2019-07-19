@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,11 +14,8 @@ namespace API
 {
     public class Startup
     {
-        private readonly ILogger<Startup> logger;
-
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
-            this.logger = logger;
             Configuration = configuration;
         }
 
@@ -31,7 +27,6 @@ namespace API
             var dbConnection = string.IsNullOrEmpty(Configuration["ConnectionStrings:BananaConnectionMssql"]) ?
                 Secrets.Get("BuleeBananaConnectionString").Result : Configuration["ConnectionStrings:BananaConnectionMssql"];
 
-            logger.Log(LogLevel.Information, "This is the connection string: " + dbConnection);
 
             services.AddDbContext<BananaDbContext>(options =>
                             options.UseSqlServer(dbConnection));
