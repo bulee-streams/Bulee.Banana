@@ -10,6 +10,7 @@ using Moq;
 using Xunit;
 using AutoMapper;
 using FluentAssertions;
+using System.Linq;
 
 namespace API.UnitTests
 {
@@ -91,6 +92,18 @@ namespace API.UnitTests
            return this;
         }
 
+        public ArrangementBuilder WithSuccessfulUserNameLookUp()
+        {
+           userManager.Setup(m => m.UserNameExists(It.IsAny<string>())).Returns(false);
+           return this;
+        }
+
+        public ArrangementBuilder WithSuccessfulUserEmailLookUp()
+        {
+           userManager.Setup(m => m.EmailExists(It.IsAny<string>())).Returns(false);
+           return this;
+        }
+
         public Arrangement Build()
             {
                 var logger = new Mock<ILogger<UsersController>>();
@@ -154,7 +167,7 @@ namespace API.UnitTests
         }
 
         [Fact]
-        public async Task CreateUser_DatabaseOnline_ShouldReturnOk()
+        public async Task CreateUser_DatabaseOnline_ShouldReturnCreated()
         {
             // Arrange
             var arrangement = new ArrangementBuilder()
@@ -167,7 +180,8 @@ namespace API.UnitTests
             var result = await arrangement.SUT.Register(arrangement.User);
 
             // Assert 
-            result.Should().BeOfType<OkResult>();
+            var resultMessage = result.Should().BeOfType<CreatedResult>().Subject;
+            resultMessage.Value.Should().Be("You've been registered");
         }
 
         [Fact]
@@ -184,7 +198,8 @@ namespace API.UnitTests
             var result = await arrangement.SUT.Register(arrangement.User);
 
             // Assert 
-            result.Should().BeOfType<BadRequestResult>();
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry you can't be registered at the moment");
         }
     }
 }

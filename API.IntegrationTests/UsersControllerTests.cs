@@ -14,7 +14,7 @@ namespace API.IntegrationTests
         }
 
         [Fact]
-        public async Task Endpoint_RegisterUser_ShouldReturnOk()
+        public async Task Endpoint_RegisterUser_ShouldReturnCreated()
         {
             // Arrange 
             var user = new RegisterUser() { Email = "user@email.com", UserName = "username", Password = "passworD01" };
@@ -23,7 +23,7 @@ namespace API.IntegrationTests
             var httpResponse = await client.PostAsJsonAsync("/api/v1/users/register", user);
 
             // Assert
-            httpResponse.EnsureSuccessStatusCode();
+            Assert.True(httpResponse.StatusCode == System.Net.HttpStatusCode.Created);
         }
     }
 }

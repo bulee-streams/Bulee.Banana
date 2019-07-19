@@ -6,6 +6,8 @@ using API.Models;
 using API.Models.ViewModels;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace API.Controllers
 {
@@ -33,14 +35,23 @@ namespace API.Controllers
             var user = mapper.Map<User>(data);
             user.TimeAdded = DateTime.Now;
 
+            if(userManager.UserNameExists(user.UserName)) {
+                return BadRequest("sorry this username has already been used");
+            }
+
+
+            if(userManager.EmailExists(user.Email)) {
+                return BadRequest("Sorry this email has already been registered");
+            }
+
             var result = await userManager.CreateAsync(user, data.Password);
             if(!result.Succeeded)
             {
                 logger.Log(LogLevel.Error, "User: " + user.UserName + " hasn't been registered");
-                return BadRequest();
+                return BadRequest("Sorry you can't be registered at the moment");
             }
 
-            return Ok();
+            return Created("api/v1/users/register", "You've been registered");
         }
     }
 }
