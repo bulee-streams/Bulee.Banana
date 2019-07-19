@@ -27,10 +27,6 @@ namespace API.Controllers
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("test")]
-        public string Test() =>
-            "This is an actual test !";
-
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
