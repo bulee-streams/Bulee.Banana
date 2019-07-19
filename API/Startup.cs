@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -26,8 +25,11 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var dbConnection = string.IsNullOrEmpty(Configuration["ConnectionStrings:BananaConnectionMssql"]) ?
+                Secrets.Get("BuleeBananaConnectionString").Result : Configuration["ConnectionStrings:BananaConnectionMssql"];
+
             services.AddDbContext<BananaDbContext>(options =>
-                            options.UseSqlServer(Configuration["ConnectionStrings:BananaConnectionMssql"]));
+                            options.UseSqlServer(dbConnection));
 
             services.AddIdentity<User, UserRole>()
                     .AddEntityFrameworkStores<BananaDbContext>()
