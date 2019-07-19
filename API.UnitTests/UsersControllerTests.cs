@@ -186,5 +186,9 @@ namespace API.UnitTests
             // Assert 
             result.Should().BeOfType<BadRequestResult>();
         }
+
+        [Fact]
+        public void FailingTest() =>
+            false.Should().BeTrue();
     }
 }
