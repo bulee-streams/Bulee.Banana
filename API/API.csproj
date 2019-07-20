@@ -5,10 +5,13 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <UserSecretsId>7db6b515-c9dc-4569-8634-350a068ed955</UserSecretsId>
+    <ApplicationInsightsResourceId>/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourcegroups/Bulee_Banana/providers/microsoft.insights/components/bulee_banana_insights</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourcegroups/Bulee_Banana/providers/microsoft.insights/components/bulee_banana_insights</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.3" />
@@ -23,6 +26,10 @@
     <PackageReference Include="NSwag.AspNetCore" Version="13.0.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 </Project>
