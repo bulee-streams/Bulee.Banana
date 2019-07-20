@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using API.Roles;
 using API.Models;
 using API.Context;
+using API.Extensions;
 using AutoMapper;
 
 namespace API
@@ -64,7 +65,10 @@ namespace API
                     document.Info.Description = "User management API";
                 };
             });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddScoped<IUserQueries, UserQueries>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

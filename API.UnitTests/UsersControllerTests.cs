@@ -11,6 +11,7 @@ using Xunit;
 using AutoMapper;
 using FluentAssertions;
 using System.Linq;
+using API.Extensions;
 
 namespace API.UnitTests
 {
@@ -24,18 +25,21 @@ namespace API.UnitTests
 
             public RegiserViewModel User { get; }
 
+            public IUserQueries UserQueries { get; }
+
             public UserManager<User> UserManager { get; }
 
             public ILogger<UsersController> Logger { get; }
 
 
-            public Arrangement(IMapper mapper, ILogger<UsersController> logger, RegiserViewModel user, UserManager<User> userManager)
+            public Arrangement(IMapper mapper, IUserQueries userQueries, ILogger<UsersController> logger, RegiserViewModel user, UserManager<User> userManager)
             {
                 User = user;
                 Mapper = mapper;
                 Logger = logger;
                 UserManager = userManager;
-                SUT = new UsersController(Mapper, UserManager, Logger);
+                UserQueries = userQueries;
+                SUT = new UsersController(Mapper, UserQueries, UserManager, Logger);
             }
         }
 
@@ -43,6 +47,7 @@ namespace API.UnitTests
         {
            private RegiserViewModel user;
            private Mock<IMapper> mapper = new Mock<IMapper>();
+           private Mock<IUserQueries> queries = new Mock<IUserQueries>();
            private static Mock<IUserStore<User>> mockUserStore = new Mock<IUserStore<User>>();
            private Mock<UserManager<User>> userManager = new Mock<UserManager<User>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
 
@@ -94,20 +99,20 @@ namespace API.UnitTests
 
         public ArrangementBuilder WithSuccessfulUserNameLookUp()
         {
-           userManager.Setup(m => m.UserNameExists(It.IsAny<string>())).Returns(false);
+           queries.Setup(q => q.UserNameExist(It.IsAny<UserManager<User>>(), It.IsAny<string>())).Returns(true);
            return this;
         }
 
         public ArrangementBuilder WithSuccessfulUserEmailLookUp()
         {
-           userManager.Setup(m => m.EmailExists(It.IsAny<string>())).Returns(false);
+           queries.Setup(q => q.EmailExist(It.IsAny<UserManager<User>>(), It.IsAny<string>())).Returns(true);
            return this;
         }
 
         public Arrangement Build()
             {
                 var logger = new Mock<ILogger<UsersController>>();
-                return new Arrangement(mapper.Object, logger.Object, user, userManager.Object);
+                return new Arrangement(mapper.Object, queries.Object, logger.Object, user, userManager.Object);
             }
         }
 
@@ -121,7 +126,8 @@ namespace API.UnitTests
                               .Build();
 
             // Act
-            var error = Record.Exception(() => new UsersController(arrangement.Mapper, 
+            var error = Record.Exception(() => new UsersController(arrangement.Mapper,
+                                                                   arrangement.UserQueries,
                                                                    arrangement.UserManager, 
                                                                    null));
 
@@ -140,12 +146,32 @@ namespace API.UnitTests
 
             // Act
             var error = Record.Exception(() => new UsersController(arrangement.Mapper,
+                                                                   arrangement.UserQueries,
                                                                    null,
                                                                    arrangement.Logger));
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();
             error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: userManager");
+        }
+
+        [Fact]
+        public void Ctor_WithNullUserQueries_ShouldThrowException()
+        {
+            // Arrange 
+            var arrangement = new ArrangementBuilder()
+                              .WithMapper()
+                              .Build();
+
+            // Act
+            var error = Record.Exception(() => new UsersController(arrangement.Mapper,
+                                                                   null,
+                                                                   arrangement.UserManager,
+                                                                   arrangement.Logger));
+
+            // Assert
+            error.Should().BeOfType<ArgumentNullException>();
+            error.Message.Should().Be("Value cannot be null." + Environment.NewLine + "Parameter name: userQueries");
         }
 
         [Fact]
@@ -158,6 +184,7 @@ namespace API.UnitTests
 
             // Act
             var error = Record.Exception(() => new UsersController(null,
+                                                                   arrangement.UserQueries,
                                                                    arrangement.UserManager,
                                                                    arrangement.Logger));
 
@@ -200,6 +227,44 @@ namespace API.UnitTests
             // Assert 
             var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
             resultMessage.Value.Should().Be("Sorry you can't be registered at the moment");
+        }
+
+        [Fact]
+        public async Task CreateUser_UserNameExists_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithUser()
+                                .WithMapper()
+                                .WithSuccessfulUserNameLookUp()
+                                .WithSuccessfulUserManager()
+                                .Build();
+
+            // Act 
+            var result = await arrangement.SUT.Register(arrangement.User);
+
+            // Assert 
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry this username has already been registered");
+        }
+
+        [Fact]
+        public async Task CreateUser_EmailExists_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithUser()
+                                .WithMapper()
+                                .WithSuccessfulUserEmailLookUp()
+                                .WithSuccessfulUserManager()
+                                .Build();
+
+            // Act 
+            var result = await arrangement.SUT.Register(arrangement.User);
+
+            // Assert 
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry this email has already been registered");
         }
     }
 }
