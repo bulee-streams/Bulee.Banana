@@ -24,7 +24,7 @@ steps:
   displayName: Build and Push
   inputs:
     command: buildAndPush
-    containerRegistry: $(azureContainerRegistry)
+    containerRegistry: $(dockerRegistryServiceConnection)
     repository: $(repositoryName)
     tags: latest
 
