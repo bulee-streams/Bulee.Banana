@@ -17,20 +17,18 @@ namespace API
     {
         public Startup(IConfiguration configuration)
         {
+            StaticConfig = configuration;
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
+        public static IConfiguration StaticConfig { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var dbConnection = string.IsNullOrEmpty(Configuration["ConnectionStrings:BananaConnectionMssql"]) ?
-                Secrets.Get("BuleeBananaConnectionString").Result : Configuration["ConnectionStrings:BananaConnectionMssql"];
-
-
             services.AddDbContext<BananaDbContext>(options =>
-                            options.UseSqlServer(dbConnection));
+                            options.UseSqlServer(Connections.Get("ConnectionStrings:BananaConnectionMssql").Result));
 
             services.AddIdentity<User, UserRole>()
                     .AddEntityFrameworkStores<BananaDbContext>()

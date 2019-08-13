@@ -5,16 +5,24 @@ using Microsoft.Azure.Services.AppAuthentication;
 
 namespace API
 {
-    public static class Secrets
+    public static class Connections
     {
-        public static async Task<string> Get(string secretName)
+        public static async Task<string> Get(string connName)
         {
+            var localConn = Startup.StaticConfig[connName];
+
+            if (!string.IsNullOrEmpty(localConn)) {
+                return localConn;
+            }
+
             try
             {
+                var secretConn = connName.Split(':')[1];
+
                 AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
                 KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-                var secret = await keyVaultClient.GetSecretAsync("https://bulee-keys.vault.azure.net/", secretName)
+                var secret = await keyVaultClient.GetSecretAsync("https://bulee-keys.vault.azure.net/", secretConn)
                     .ConfigureAwait(false);
 
                 return secret.Value;
