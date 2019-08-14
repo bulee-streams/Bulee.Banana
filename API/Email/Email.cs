@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using API.EmailSender;
+using API.EmailSender.Interfaces;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -16,11 +16,11 @@ namespace API.Email
             client = new SendGridClient(Connections.Get("ConnectionStrings:SendGridAPIKey").Result);
         }
 
-        public async Task<HttpStatusCode> Send(string fromName, string toName, string toAddress, string fromAddress, string subject, string content)
+        public async Task<HttpStatusCode> Send(string fromName, string toName, string toAddress, string fromAddress, string templateId, object data)
         {
             var to = new EmailAddress(toAddress, toName);
             var from = new EmailAddress(fromAddress, fromName);
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, content, null);
+            var msg = MailHelper.CreateSingleTemplateEmail(from, to, templateId, data);
 
             var response = await client.SendEmailAsync(msg);
             return response.StatusCode;

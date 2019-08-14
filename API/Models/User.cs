@@ -15,6 +15,7 @@ namespace API.Models
             set { base.Id = value; }
         }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime TimeAdded { get; set; }
     }
 }

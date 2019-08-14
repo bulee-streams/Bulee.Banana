@@ -7,6 +7,7 @@ using API.Models;
 using API.Extensions;
 using API.Models.ViewModels;
 using AutoMapper;
+using System.Linq;
 
 namespace API.Controllers
 {
@@ -34,11 +35,32 @@ namespace API.Controllers
         [HttpGet("test")]
         public string Test() => "This is a test endpoint";
 
+        [HttpGet("registration-complete/{id}")]
+        public async Task<IActionResult> RegistrationComplete(string id)
+        {
+            Guid guidId;
+            if(Guid.TryParse(id, out guidId))
+            {
+                var user = userManager.Users.Where(u => u.Id == guidId).FirstOrDefault();
+                if(user != null)
+                {
+                    user.EmailConfirmed = true;
+                    var result = await userManager.UpdateAsync(user);
+                    
+                    if(result.Succeeded) {
+                        return Ok();
+                    }
+                }
+            }
+
+            return BadRequest("Sorry can't complete the account registration");
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
             var user = mapper.Map<User>(data);
-            user.TimeAdded = DateTime.Now;
 
             if(userQueries.UserNameExist(userManager, user.UserName)) {
                 return BadRequest("Sorry this username has already been registered");
@@ -50,11 +72,17 @@ namespace API.Controllers
             }
 
             var result = await userManager.CreateAsync(user, data.Password);
+
             if(!result.Succeeded)
             {
                 logger.Log(LogLevel.Error, "User: " + user.UserName + " hasn't been registered");
                 return BadRequest("Sorry you can't be registered at the moment");
             }
+
+            var userId = userManager.Users
+                                    .Where(u => u.NormalizedUserName == user.NormalizedUserName)
+                                    .FirstOrDefault()
+                                    .Id;
 
             return Created("api/v1/users/register", "You've been registered");
         }
