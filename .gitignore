@@ -330,3 +330,5 @@ ASALocalRun/
 .mfractor/
 
 API/Dockerfile
+
+API/appsettings\.Development\.json
