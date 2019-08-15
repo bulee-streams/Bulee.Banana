@@ -79,11 +79,6 @@ namespace API.Controllers
                 return BadRequest("Sorry you can't be registered at the moment");
             }
 
-            var userId = userManager.Users
-                                    .Where(u => u.NormalizedUserName == user.NormalizedUserName)
-                                    .FirstOrDefault()
-                                    .Id;
-
             return Created("api/v1/users/register", "You've been registered");
         }
     }
