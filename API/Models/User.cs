@@ -1,21 +1,23 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
 
 namespace API.Models
 {
-    public class User : IdentityUser<Guid>
+    public class User
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public override Guid Id
-        {
-            get { return base.Id; }
-            set { base.Id = value; }
-        }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public DateTime TimeAdded { get; set; }
+        public string Username { get; set; }
+
+        public string Email { get; set; }
+
+        public Guid EmailConfirmationToken { get; set; } = Guid.NewGuid();
+
+        public bool EmailConfirmed { get; set; }
+
+        public string Password { get; set; }
+
+        public byte[] Salt { get; set; }
     }
 }

@@ -5,13 +5,10 @@ using API.Controllers;
 using API.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Identity;
 using Moq;
 using Xunit;
-using AutoMapper;
 using FluentAssertions;
-using System.Linq;
-using API.Extensions;
+using API.Repositories.Interfaces;
 
 namespace API.UnitTests
 {
@@ -19,37 +16,30 @@ namespace API.UnitTests
     {
         private class Arrangement
         {
-            public IMapper Mapper { get; }
 
             public UsersController SUT { get; }
 
             public RegiserViewModel User { get; }
 
-            public IUserQueries UserQueries { get; }
 
-            public UserManager<User> UserManager { get; }
+            public IUserRepository UserRepository { get; }
 
             public ILogger<UsersController> Logger { get; }
 
 
-            public Arrangement(IMapper mapper, IUserQueries userQueries, ILogger<UsersController> logger, RegiserViewModel user, UserManager<User> userManager)
+            public Arrangement(ILogger<UsersController> logger, RegiserViewModel user, IUserRepository userRepository)
             {
                 User = user;
-                Mapper = mapper;
                 Logger = logger;
-                UserManager = userManager;
-                UserQueries = userQueries;
-                SUT = new UsersController(Mapper, UserQueries, UserManager, Logger);
+                UserRepository = userRepository;
+                SUT = new UsersController(UserRepository, Logger);
             }
         }
 
         private class ArrangementBuilder
         {
            private RegiserViewModel user;
-           private Mock<IMapper> mapper = new Mock<IMapper>();
-           private Mock<IUserQueries> queries = new Mock<IUserQueries>();
-           private static Mock<IUserStore<User>> mockUserStore = new Mock<IUserStore<User>>();
-           private Mock<UserManager<User>> userManager = new Mock<UserManager<User>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+           private Mock<IUserRepository> userRepository = new Mock<IUserRepository>();
 
             private readonly string username = "username";
             private readonly string email = "user@email.com";
@@ -67,52 +57,36 @@ namespace API.UnitTests
             return this;
         }
 
-        public ArrangementBuilder WithMapper()
-        {
-           mapper = new Mock<IMapper>();
-          
-           mapper.Setup(x => x.Map<User>(It.IsAny<RegiserViewModel>()))
-                 .Returns((RegiserViewModel source) =>
-                 {
-                       var user = new User()
-                       {
-                         UserName = username,
-                         Email = email,
-                       };
-                       return user;
-                 });
 
+
+        public ArrangementBuilder WithSuccessfulCreate()
+        {
+           userRepository.Setup(u => u.Create(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
            return this;
         }
 
-        public ArrangementBuilder WithSuccessfulUserManager()
+        public ArrangementBuilder WithUnSuccessfulCreate()
         {
-           userManager.Setup(m => m.CreateAsync(It.IsAny<User>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
-           return this;
-        }
-
-        public ArrangementBuilder WithUnSuccessfulUserManager()
-        {
-           userManager.Setup(m => m.CreateAsync(It.IsAny<User>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Failed());
-           return this;
+                userRepository.Setup(u => u.Create(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((User)null);
+                return this;
         }
 
         public ArrangementBuilder WithSuccessfulUserNameLookUp()
         {
-           queries.Setup(q => q.UserNameExist(It.IsAny<UserManager<User>>(), It.IsAny<string>())).Returns(true);
+           userRepository.Setup(u => u.DoesUsernameExist(It.IsAny<string>())).Returns(true);
            return this;
         }
 
         public ArrangementBuilder WithSuccessfulUserEmailLookUp()
         {
-           queries.Setup(q => q.EmailExist(It.IsAny<UserManager<User>>(), It.IsAny<string>())).Returns(true);
+           userRepository.Setup(u => u.DoesEmailExist(It.IsAny<string>())).Returns(true);
            return this;
         }
 
         public Arrangement Build()
             {
                 var logger = new Mock<ILogger<UsersController>>();
-                return new Arrangement(mapper.Object, queries.Object, logger.Object, user, userManager.Object);
+                return new Arrangement(logger.Object, user, userRepository.Object);
             }
         }
 
@@ -121,14 +95,10 @@ namespace API.UnitTests
         {
             // Arrange 
             var arrangement = new ArrangementBuilder()
-                              .WithMapper()
-                              .WithSuccessfulUserManager()
                               .Build();
 
             // Act
-            var error = Record.Exception(() => new UsersController(arrangement.Mapper,
-                                                                   arrangement.UserQueries,
-                                                                   arrangement.UserManager, 
+            var error = Record.Exception(() => new UsersController(arrangement.UserRepository,
                                                                    null));
 
             // Assert
@@ -141,56 +111,15 @@ namespace API.UnitTests
         {
             // Arrange 
             var arrangement = new ArrangementBuilder()
-                              .WithMapper()
-                              .Build();
-
-            // Act
-            var error = Record.Exception(() => new UsersController(arrangement.Mapper,
-                                                                   arrangement.UserQueries,
-                                                                   null,
-                                                                   arrangement.Logger));
-
-            // Assert
-            error.Should().BeOfType<ArgumentNullException>();
-            error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: userManager");
-        }
-
-        [Fact]
-        public void Ctor_WithNullUserQueries_ShouldThrowException()
-        {
-            // Arrange 
-            var arrangement = new ArrangementBuilder()
-                              .WithMapper()
-                              .Build();
-
-            // Act
-            var error = Record.Exception(() => new UsersController(arrangement.Mapper,
-                                                                   null,
-                                                                   arrangement.UserManager,
-                                                                   arrangement.Logger));
-
-            // Assert
-            error.Should().BeOfType<ArgumentNullException>();
-            error.Message.Should().Be("Value cannot be null." + Environment.NewLine + "Parameter name: userQueries");
-        }
-
-        [Fact]
-        public void Ctor_WithNullUserMapper_ShouldThrowException()
-        {
-            // Arrange 
-            var arrangement = new ArrangementBuilder()
-                              .WithSuccessfulUserManager()
                               .Build();
 
             // Act
             var error = Record.Exception(() => new UsersController(null,
-                                                                   arrangement.UserQueries,
-                                                                   arrangement.UserManager,
                                                                    arrangement.Logger));
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();
-            error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: mapper");
+            error.Message.Should().Be("Value cannot be null."+ Environment.NewLine +"Parameter name: userRepository");
         }
 
         [Fact]
@@ -199,8 +128,7 @@ namespace API.UnitTests
             // Arrange
             var arrangement = new ArrangementBuilder()
                                 .WithUser()
-                                .WithMapper()
-                                .WithSuccessfulUserManager()
+                                .WithSuccessfulCreate()
                                 .Build();
 
             // Act 
@@ -217,8 +145,7 @@ namespace API.UnitTests
             // Arrange
             var arrangement = new ArrangementBuilder()
                                 .WithUser()
-                                .WithMapper()
-                                .WithUnSuccessfulUserManager()
+                                .WithUnSuccessfulCreate()
                                 .Build();
 
             // Act 
@@ -235,9 +162,7 @@ namespace API.UnitTests
             // Arrange
             var arrangement = new ArrangementBuilder()
                                 .WithUser()
-                                .WithMapper()
                                 .WithSuccessfulUserNameLookUp()
-                                .WithSuccessfulUserManager()
                                 .Build();
 
             // Act 
@@ -245,7 +170,7 @@ namespace API.UnitTests
 
             // Assert 
             var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
-            resultMessage.Value.Should().Be("Sorry this username has already been registered");
+            resultMessage.Value.Should().Be("Sorry this username has already been used");
         }
 
         [Fact]
@@ -254,9 +179,7 @@ namespace API.UnitTests
             // Arrange
             var arrangement = new ArrangementBuilder()
                                 .WithUser()
-                                .WithMapper()
                                 .WithSuccessfulUserEmailLookUp()
-                                .WithSuccessfulUserManager()
                                 .Build();
 
             // Act 
@@ -264,7 +187,7 @@ namespace API.UnitTests
 
             // Assert 
             var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
-            resultMessage.Value.Should().Be("Sorry this email has already been registered");
+            resultMessage.Value.Should().Be("Sorry this email address has already been used");
         }
     }
 }

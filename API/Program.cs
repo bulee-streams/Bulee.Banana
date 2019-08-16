@@ -21,7 +21,7 @@ namespace API
             try
             {
                 Log.Information("Starting web host");
-                CreateWebHostBuilder(args).Build().MigrateDatabase<BananaDbContext>().Run();
+                CreateWebHostBuilder(args).Build().MigrateDatabase<UserContext>().Run();
                 return 0;
             }
             catch (Exception ex)

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using API.EmailSender.Interfaces;
+using API.Email.Interfaces;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 

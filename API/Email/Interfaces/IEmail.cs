@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 
-namespace API.EmailSender.Interfaces
+namespace API.Email.Interfaces
 {
     public interface IEmail
     {

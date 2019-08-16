@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Identity;
-using API.Models;
-using API.Extensions;
 using API.Models.ViewModels;
-using AutoMapper;
-using System.Linq;
+using API.Repositories.Interfaces;
+using API.Email.Interfaces;
+using API.Models;
 
 namespace API.Controllers
 {
@@ -16,70 +15,72 @@ namespace API.Controllers
     [Route("api/v1/[controller]")]
     public class UsersController : Controller
     {
-        private readonly IMapper mapper;
-        private readonly IUserQueries userQueries;
-        private readonly UserManager<User> userManager;
+        private readonly IEmail email;
+        private readonly IUserRepository userRepository;
         private readonly ILogger<UsersController> logger;
 
-        public UsersController(IMapper mapper,
-                               IUserQueries userQueries,
-                               UserManager<User> userManager,
-                               ILogger<UsersController> logger)
+        private readonly string templateId;
+
+        public UsersController(IEmail email,
+                               ILogger<UsersController> logger,
+                               IUserRepository userRepository)
         {
-            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            this.userQueries = userQueries ?? throw new ArgumentNullException(nameof(userQueries));
-            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this.email = email ?? throw new ArgumentNullException(nameof(email));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            templateId = Connections.Get("ConnectionStrings:ConfirmationEmailId").Result;
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [HttpGet("test")]
         public string Test() => "This is a test endpoint";
 
-        [HttpGet("registration-complete/{id}")]
-        public async Task<IActionResult> RegistrationComplete(string id)
+        [HttpPost("registration-complete/{token}")]
+        public async Task<IActionResult> RegistrationComplete(string token)
         {
-            Guid guidId;
-            if(Guid.TryParse(id, out guidId))
-            {
-                var user = userManager.Users.Where(u => u.Id == guidId).FirstOrDefault();
-                if(user != null)
-                {
-                    user.EmailConfirmed = true;
-                    var result = await userManager.UpdateAsync(user);
-                    
-                    if(result.Succeeded) {
-                        return Ok();
-                    }
-                }
+            var valid = await userRepository.IsEmailConfirmationValid(token);
+
+            if (!valid) {
+                return BadRequest("Sorry this request is invalid");
             }
 
-            return BadRequest("Sorry can't complete the account registration");
+            return Created("api/v1/users/registration-complete", "Your email has been confirmed");
         }
 
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
-            var user = mapper.Map<User>(data);
+           if(userRepository.DoesUsernameExist(data.UserName)) {
+                return BadRequest("Sorry this username has already been used");
+           }
 
-            if(userQueries.UserNameExist(userManager, user.UserName)) {
-                return BadRequest("Sorry this username has already been registered");
-            }
+           if(userRepository.DoesEmailExist(data.UserName)) {
+                return BadRequest("Sorry this email address has already been used");
+           }
 
+            var result = await userRepository.Create(data.UserName, data.Password);
 
-            if(userQueries.EmailExist(userManager, user.Email)) {
-                return BadRequest("Sorry this email has already been registered");
-            }
-
-            var result = await userManager.CreateAsync(user, data.Password);
-
-            if(!result.Succeeded)
+            if(result == null)
             {
-                logger.Log(LogLevel.Error, "User: " + user.UserName + " hasn't been registered");
+                logger.Log(LogLevel.Error, "User: " + data.UserName + " hasn't been registered");
                 return BadRequest("Sorry you can't be registered at the moment");
             }
 
+            await SendCofirmationEmail(data.UserName, data.Email);
+
             return Created("api/v1/users/register", "You've been registered");
+        }
+
+        private async Task SendCofirmationEmail(string username, string emailAddress)
+        {
+            var objectData = new ConfirmationEmail() { UserName = username, Url = "http://suckit.com" };
+
+            var result = await email.Send("Bulee Services", username,  emailAddress,
+                                          "banana@bulee.com", templateId, objectData);
+
+            if(result != HttpStatusCode.OK) {
+                logger.Log(LogLevel.Error, "confirmation email for: " + username + " has not been sent");
+            }
         }
     }
 }
