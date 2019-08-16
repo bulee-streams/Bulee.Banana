@@ -19,15 +19,12 @@ namespace API.Controllers
         private readonly IUserRepository userRepository;
         private readonly ILogger<UsersController> logger;
 
-        private readonly string templateId;
-
         public UsersController(IEmail email,
                                ILogger<UsersController> logger,
                                IUserRepository userRepository)
         {
             this.email = email ?? throw new ArgumentNullException(nameof(email));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            templateId = Connections.Get("ConnectionStrings:ConfirmationEmailId").Result;
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
@@ -58,7 +55,7 @@ namespace API.Controllers
                 return BadRequest("Sorry this email address has already been used");
            }
 
-            var result = await userRepository.Create(data.UserName, data.Password);
+            var result = await userRepository.Create(data.UserName, data.Email, data.Password);
 
             if(result == null)
             {
@@ -66,21 +63,21 @@ namespace API.Controllers
                 return BadRequest("Sorry you can't be registered at the moment");
             }
 
-            await SendCofirmationEmail(data.UserName, data.Email);
+            //await SendCofirmationEmail(data.UserName, data.Email);
 
             return Created("api/v1/users/register", "You've been registered");
         }
 
-        private async Task SendCofirmationEmail(string username, string emailAddress)
-        {
-            var objectData = new ConfirmationEmail() { UserName = username, Url = "http://suckit.com" };
+        //private async Task SendCofirmationEmail(string username, string emailAddress)
+        //{
+        //    var objectData = new ConfirmationEmail() { UserName = username, Url = "http://suckit.com" };
 
-            var result = await email.Send("Bulee Services", username,  emailAddress,
-                                          "banana@bulee.com", templateId, objectData);
+        //    var result = await email.Send("Bulee Services", username,  emailAddress,
+        //                                  "banana@bulee.com", templateId, objectData);
 
-            if(result != HttpStatusCode.OK) {
-                logger.Log(LogLevel.Error, "confirmation email for: " + username + " has not been sent");
-            }
-        }
+        //    if(result != HttpStatusCode.OK) {
+        //        logger.Log(LogLevel.Error, "confirmation email for: " + username + " has not been sent");
+        //    }
+        //}
     }
 }

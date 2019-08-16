@@ -1,6 +1,8 @@
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using API.IntegrationTests.Models;
+using FluentAssertions;
 using Xunit;
 
 namespace API.IntegrationTests
@@ -23,7 +25,7 @@ namespace API.IntegrationTests
             var httpResponse = await client.PostAsJsonAsync("/api/v1/users/register", user);
 
             // Assert
-            Assert.True(httpResponse.StatusCode == System.Net.HttpStatusCode.Created);
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         }
     }
 }

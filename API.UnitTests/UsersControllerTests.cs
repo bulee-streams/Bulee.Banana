@@ -9,6 +9,7 @@ using Moq;
 using Xunit;
 using FluentAssertions;
 using API.Repositories.Interfaces;
+using API.Email.Interfaces;
 
 namespace API.UnitTests
 {
@@ -16,6 +17,7 @@ namespace API.UnitTests
     {
         private class Arrangement
         {
+            public IEmail Email { get; }
 
             public UsersController SUT { get; }
 
@@ -27,12 +29,13 @@ namespace API.UnitTests
             public ILogger<UsersController> Logger { get; }
 
 
-            public Arrangement(ILogger<UsersController> logger, RegiserViewModel user, IUserRepository userRepository)
+            public Arrangement(IEmail email, ILogger<UsersController> logger, RegiserViewModel user, IUserRepository userRepository)
             {
                 User = user;
+                Email = email;
                 Logger = logger;
                 UserRepository = userRepository;
-                SUT = new UsersController(UserRepository, Logger);
+                SUT = new UsersController(Email, Logger, UserRepository);
             }
         }
 
@@ -61,13 +64,13 @@ namespace API.UnitTests
 
         public ArrangementBuilder WithSuccessfulCreate()
         {
-           userRepository.Setup(u => u.Create(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
+           userRepository.Setup(u => u.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
            return this;
         }
 
         public ArrangementBuilder WithUnSuccessfulCreate()
         {
-                userRepository.Setup(u => u.Create(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((User)null);
+                userRepository.Setup(u => u.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((User)null);
                 return this;
         }
 
@@ -86,8 +89,26 @@ namespace API.UnitTests
         public Arrangement Build()
             {
                 var logger = new Mock<ILogger<UsersController>>();
-                return new Arrangement(logger.Object, user, userRepository.Object);
+                var emailSender = new Mock<IEmail>();
+                return new Arrangement(emailSender.Object, logger.Object, user, userRepository.Object);
             }
+        }
+
+        [Fact]
+        public void Ctor_WithNullEmail_ShouldThrowException()
+        {
+            // Arrange 
+            var arrangement = new ArrangementBuilder()
+                              .Build();
+
+            // Act
+            var error = Record.Exception(() => new UsersController(null,
+                                                                   arrangement.Logger,
+                                                                   arrangement.UserRepository));
+
+            // Assert
+            error.Should().BeOfType<ArgumentNullException>();
+            error.Message.Should().Be("Value cannot be null." + Environment.NewLine + "Parameter name: email");
         }
 
         [Fact]
@@ -98,8 +119,9 @@ namespace API.UnitTests
                               .Build();
 
             // Act
-            var error = Record.Exception(() => new UsersController(arrangement.UserRepository,
-                                                                   null));
+            var error = Record.Exception(() => new UsersController(arrangement.Email,
+                                                                   null,
+                                                                   arrangement.UserRepository));
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();
@@ -107,15 +129,16 @@ namespace API.UnitTests
         }
 
         [Fact]
-        public void Ctor_WithNullUserManager_ShouldThrowException()
+        public void Ctor_WithNullUserRespository_ShouldThrowException()
         {
             // Arrange 
             var arrangement = new ArrangementBuilder()
                               .Build();
 
             // Act
-            var error = Record.Exception(() => new UsersController(null,
-                                                                   arrangement.Logger));
+            var error = Record.Exception(() => new UsersController(arrangement.Email,
+                                                                  arrangement.Logger,
+                                                                  null));
 
             // Assert
             error.Should().BeOfType<ArgumentNullException>();

@@ -17,10 +17,10 @@ namespace API.Repositories
             this.passwordEncrypt = passwordEncrypt ?? throw new ArgumentNullException(nameof(passwordEncrypt));
         }
 
-        public async Task<User> Create(string username, string password)
+        public async Task<User> Create(string username, string email, string password)
         {
             var encryptedPassword = passwordEncrypt.HashReturnSalt(password);
-            var user = new User() { Username = username, Salt = encryptedPassword.Item1, Password = encryptedPassword.Item2 };
+            var user = new User() { Username = username, Email = email, Salt = encryptedPassword.Item1, Password = encryptedPassword.Item2 };
 
             await context.AddAsync(user);
             return await context.SaveChangesAsync() > 0 ? user : null; 

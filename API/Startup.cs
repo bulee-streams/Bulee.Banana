@@ -8,6 +8,7 @@ using API.Context;
 using AutoMapper;
 using API.Repositories;
 using API.Repositories.Interfaces;
+using API.Email.Interfaces;
 
 namespace API
 {
@@ -39,6 +40,8 @@ namespace API
                 };
             });
 
+            services.AddScoped<PasswordEncryption>();
+            services.AddScoped<IEmail, Email.Email>();
             services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddApplicationInsightsTelemetry();
