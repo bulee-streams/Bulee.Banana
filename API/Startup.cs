@@ -61,8 +61,9 @@ namespace API
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseHttpContext();
             app.UseAuthentication();
+            app.UseHttpsRedirection();
 
             app.UseOpenApi();
             app.UseSwaggerUi3();

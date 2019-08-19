@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using API.Models.ViewModels;
 using API.Repositories.Interfaces;
 using API.Email.Interfaces;
-using API.Models;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -63,21 +62,15 @@ namespace API.Controllers
                 return BadRequest("Sorry you can't be registered at the moment");
             }
 
-            //await SendCofirmationEmail(data.UserName, data.Email);
+            var emailResult = await email.SendCofirmationEmail(result.Username, 
+                                                               result.Email, 
+                                                               result.EmailConfirmationToken);
+
+            if(emailResult != HttpStatusCode.OK) {
+                logger.Log(LogLevel.Error, "User: " + data.UserName + "registration email hasn't been sent");
+            }
 
             return Created("api/v1/users/register", "You've been registered");
         }
-
-        //private async Task SendCofirmationEmail(string username, string emailAddress)
-        //{
-        //    var objectData = new ConfirmationEmail() { UserName = username, Url = "http://suckit.com" };
-
-        //    var result = await email.Send("Bulee Services", username,  emailAddress,
-        //                                  "banana@bulee.com", templateId, objectData);
-
-        //    if(result != HttpStatusCode.OK) {
-        //        logger.Log(LogLevel.Error, "confirmation email for: " + username + " has not been sent");
-        //    }
-        //}
     }
 }

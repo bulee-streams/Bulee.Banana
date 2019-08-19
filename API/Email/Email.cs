@@ -1,6 +1,8 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using API.Email.Interfaces;
+using API.Models;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -9,11 +11,14 @@ namespace API.Email
  
     public class Email : IEmail
     {
+        private readonly string templateId;
         private readonly SendGridClient client;
 
         public Email()
         {
+            templateId = Connections.Get("ConnectionStrings:ConfirmationEmailId").Result;
             client = new SendGridClient(Connections.Get("ConnectionStrings:SendGridAPIKey").Result);
+
         }
 
         public async Task<HttpStatusCode> Send(string fromName, string toName, string toAddress, string fromAddress, string templateId, object data)
@@ -24,6 +29,17 @@ namespace API.Email
 
             var response = await client.SendEmailAsync(msg);
             return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> SendCofirmationEmail(string username, string emailAddress, Guid emailToken)
+        {
+            var url = BananaHttpContext.AppBaseUrl + "/api/v1/users/registration-complete/" + emailToken;
+            var objectData = new ConfirmationEmail() { UserName = username, Url = url };
+
+            var result = await Send("Bulee Services", username, emailAddress,
+                                    "banana@bulee.com", templateId, objectData);
+
+            return result;
         }
     }
 }
