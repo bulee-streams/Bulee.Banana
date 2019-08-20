@@ -8,6 +8,12 @@ variables:
     buildConfiguration: 'Release'
 
 steps:
+- task: FileTransform@1
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)'
+    fileType: 'json'
+    targetFiles: '**/appsettings.json'
+
 - script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
   displayName: Run unit tests
 
@@ -20,10 +26,22 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- task: Docker@2
-  displayName: Build and Push
+- task: DockerCompose@0
   inputs:
-    command: buildAndPush
-    containerRegistry: $(dockerRegistryServiceConnection)
-    repository: $(repositoryName)
-    tags: latest
+    containerregistrytype: 'Azure Container Registry'
+    azureSubscription: 'bulee_resource_connection'
+    azureContainerRegistry: '{"loginServer":"buleebanana.azurecr.io", "id" : "/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourceGroups/Bulee_Banana/providers/Microsoft.ContainerRegistry/registries/buleebanana"}'
+    dockerComposeFile: '**/docker-compose.yml'
+    action: 'Build services'
+    dockerComposeFileArgs: |
+        ConnectionStrings__BananaConnectionMssql=$(ConnectionStrings.BananaConnectionMssql)
+        Keys__SendGridAPI=$(Keys.SendGridAPI)
+        Keys__ConfirmationEmailId=$(Keys.ConfirmationEmailId)
+
+- task: DockerCompose@0
+  inputs:
+    containerregistrytype: 'Azure Container Registry'
+    azureSubscription: 'bulee_resource_connection'
+    azureContainerRegistry: '{"loginServer":"buleebanana.azurecr.io", "id" : "/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourceGroups/Bulee_Banana/providers/Microsoft.ContainerRegistry/registries/buleebanana"}'
+    dockerComposeFile: '**/docker-compose.yml'
+    action: 'Push services'
