@@ -10,7 +10,7 @@ variables:
 steps:
 - task: FileTransform@1
   inputs:
-    folderPath: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    folderPath: '$(System.DefaultWorkingDirectory)'
     fileType: 'json'
     targetFiles: '**/appsettings.json'
     
