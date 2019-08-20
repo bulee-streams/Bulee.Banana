@@ -34,9 +34,9 @@ steps:
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Build services'
     dockerComposeFileArgs: |
-        ConnectionStrings__BananaConnectionMssql=$(ConnectionStrings.BananaConnectionMssql)
-        Keys__SendGridAPI=$(Keys.SendGridAPI)
-        Keys__ConfirmationEmailId=$(Keys.ConfirmationEmailId)
+        BananaConnection=$(ConnectionStrings.BananaConnectionMssql)
+        SendGridAPIKey=$(Keys.SendGridAPI)
+        ConfirmationEmailId=$(Keys.ConfirmationEmailId)
 
 - task: DockerCompose@0
   inputs:
@@ -45,3 +45,8 @@ steps:
     azureContainerRegistry: '{"loginServer":"buleebanana.azurecr.io", "id" : "/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourceGroups/Bulee_Banana/providers/Microsoft.ContainerRegistry/registries/buleebanana"}'
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Push services'
+    dockerComposeFileArgs: |
+        BananaConnection=$(ConnectionStrings.BananaConnectionMssql)
+        SendGridAPIKey=$(Keys.SendGridAPI)
+        ConfirmationEmailId=$(Keys.ConfirmationEmailId)
+    includeLatestTag: true
