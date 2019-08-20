@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Identity;
-using API.Models;
-using API.Extensions;
 using API.Models.ViewModels;
-using AutoMapper;
+using API.Repositories.Interfaces;
+using API.Email.Interfaces;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -15,45 +14,60 @@ namespace API.Controllers
     [Route("api/v1/[controller]")]
     public class UsersController : Controller
     {
-        private readonly IMapper mapper;
-        private readonly IUserQueries userQueries;
-        private readonly UserManager<User> userManager;
+        private readonly IEmail email;
+        private readonly IUserRepository userRepository;
         private readonly ILogger<UsersController> logger;
 
-        public UsersController(IMapper mapper,
-                               IUserQueries userQueries,
-                               UserManager<User> userManager,
-                               ILogger<UsersController> logger)
+        public UsersController(IEmail email,
+                               ILogger<UsersController> logger,
+                               IUserRepository userRepository)
         {
-            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            this.userQueries = userQueries ?? throw new ArgumentNullException(nameof(userQueries));
-            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this.email = email ?? throw new ArgumentNullException(nameof(email));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [HttpGet("test")]
         public string Test() => "This is a test endpoint";
 
+        [HttpPost("registration-complete/{token}")]
+        public async Task<IActionResult> RegistrationComplete(string token)
+        {
+            var valid = await userRepository.IsEmailConfirmationValid(token);
+
+            if (!valid) {
+                return BadRequest("Sorry this request is invalid");
+            }
+
+            return Created("api/v1/users/registration-complete", "Your email has been confirmed");
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
-            var user = mapper.Map<User>(data);
-            user.TimeAdded = DateTime.Now;
+           if(userRepository.DoesUsernameExist(data.UserName)) {
+                return BadRequest("Sorry this username has already been used");
+           }
 
-            if(userQueries.UserNameExist(userManager, user.UserName)) {
-                return BadRequest("Sorry this username has already been registered");
-            }
+           if(userRepository.DoesEmailExist(data.UserName)) {
+                return BadRequest("Sorry this email address has already been used");
+           }
 
+            var result = await userRepository.Create(data.UserName, data.Email, data.Password);
 
-            if(userQueries.EmailExist(userManager, user.Email)) {
-                return BadRequest("Sorry this email has already been registered");
-            }
-
-            var result = await userManager.CreateAsync(user, data.Password);
-            if(!result.Succeeded)
+            if(result == null)
             {
-                logger.Log(LogLevel.Error, "User: " + user.UserName + " hasn't been registered");
+                logger.Log(LogLevel.Error, "User: " + data.UserName + " hasn't been registered");
                 return BadRequest("Sorry you can't be registered at the moment");
+            }
+
+            var emailResult = await email.SendCofirmationEmail(result.Username, 
+                                                               result.Email, 
+                                                               result.EmailConfirmationToken);
+
+            if(emailResult != HttpStatusCode.OK) {
+                logger.Log(LogLevel.Error, "User: " + data.UserName + "registration email hasn't been sent");
             }
 
             return Created("api/v1/users/register", "You've been registered");

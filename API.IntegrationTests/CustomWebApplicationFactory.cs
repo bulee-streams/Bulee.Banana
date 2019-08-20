@@ -15,7 +15,7 @@ namespace API.IntegrationTests
             {
                 var serviceProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
 
-                services.AddDbContext<BananaDbContext>(options =>
+                services.AddDbContext<UserContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryAppDb");
                     options.UseInternalServiceProvider(serviceProvider);
@@ -26,7 +26,7 @@ namespace API.IntegrationTests
                 using (var scope = sp.CreateScope())
                 {
                     var scopedServices = scope.ServiceProvider;
-                    var appDb = scopedServices.GetRequiredService<BananaDbContext>();
+                    var appDb = scopedServices.GetRequiredService<UserContext>();
 
                     var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
                     appDb.Database.EnsureCreated();

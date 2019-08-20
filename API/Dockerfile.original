@@ -1,10 +1,9 @@
-ENV ConnectionStrings__BananaConnectionMssql=
-ENV ConnectionStrings__SendGridAPIKey=
-ENV ConnectionStrings__ConfirmationEmailId=
-
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
 WORKDIR /app
 EXPOSE 80
+ENV ConnectionStrings__BananaConnectionMssql="Server=tcp:bulee-banana.database.windows.net,1433;Initial Catalog=user;Persist Security Info=False;User ID=kinaetron;Password=LFb3kdggenpK;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+ENV ConnectionStrings__SendGridAPIKey="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"
+ENV ConnectionStrings__ConfirmationEmailId="d-2ab400061dd64c35a527ae7df65378ec"
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
