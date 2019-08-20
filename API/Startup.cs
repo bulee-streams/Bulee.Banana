@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using API.Roles;
-using API.Models;
 using API.Context;
-using API.Extensions;
 using AutoMapper;
+using API.Repositories;
+using API.Repositories.Interfaces;
+using API.Email.Interfaces;
 
 namespace API
 {
@@ -25,37 +24,12 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var dbConnection = string.IsNullOrEmpty(Configuration["ConnectionStrings:BananaConnectionMssql"]) ?
-                Secrets.Get("BuleeBananaConnectionString").Result : Configuration["ConnectionStrings:BananaConnectionMssql"];
+            var conn = Configuration["ConnectionStrings:BananaConnectionMssql"];
 
-
-            services.AddDbContext<BananaDbContext>(options =>
-                            options.UseSqlServer(dbConnection));
-
-            services.AddIdentity<User, UserRole>()
-                    .AddEntityFrameworkStores<BananaDbContext>()
-                    .AddDefaultTokenProviders();
+            services.AddDbContext<UserContext>(options =>
+                            options.UseSqlServer(conn));
 
             services.AddAutoMapper(typeof(Startup));
-
-            services.Configure<IdentityOptions>(options => 
-            {
-                // Password settings
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 8;
-
-                // Lockout settings
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-                
-                // User settings
-                options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = false;
-            });
 
             services.AddSwaggerDocument(swagCon => 
             {
@@ -66,11 +40,13 @@ namespace API
                 };
             });
 
+            services.AddScoped<PasswordEncryption>();
+            services.AddScoped<IEmail, Email.Email>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddApplicationInsightsTelemetry();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            services.AddScoped<IUserQueries, UserQueries>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,8 +61,9 @@ namespace API
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseHttpContext();
             app.UseAuthentication();
+            app.UseHttpsRedirection();
 
             app.UseOpenApi();
             app.UseSwaggerUi3();

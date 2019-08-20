@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  api:
+    image: ${DOCKER_REGISTRY-}api
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    environment:
+      - ConnectionStrings__BananaConnectionMssql= ${BananaConnection}
+      - Keys__SendGridAPI= ${SendGridAPIKey}
+      - Keys__ConfirmationEmailId= ${ConfirmationEmailId}
