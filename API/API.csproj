@@ -7,7 +7,12 @@
     <UserSecretsId>7db6b515-c9dc-4569-8634-350a068ed955</UserSecretsId>
     <ApplicationInsightsResourceId>/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourcegroups/Bulee_Banana/providers/microsoft.insights/components/bulee_banana_insights</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/85e88e40-7ca1-48c0-b71d-7f123c16dd9b/resourcegroups/Bulee_Banana/providers/microsoft.insights/components/bulee_banana_insights</ApplicationInsightsAnnotationResourceId>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Dockerfile.original" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.0" />

@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using API.Email.Interfaces;
 using API.Models;
+using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -14,11 +15,12 @@ namespace API.Email
         private readonly string templateId;
         private readonly SendGridClient client;
 
-        public Email()
+        public Email(IConfiguration configuration)
         {
-            templateId = Connections.Get("ConnectionStrings:ConfirmationEmailId").Result;
-            client = new SendGridClient(Connections.Get("ConnectionStrings:SendGridAPIKey").Result);
+            var config = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
+            templateId = config["Keys:ConfirmationEmailId"];
+            client = new SendGridClient(config["ConnectionStrings:SendGridAPIKey"]);
         }
 
         public async Task<HttpStatusCode> Send(string fromName, string toName, string toAddress, string fromAddress, string templateId, object data)
