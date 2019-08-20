@@ -8,6 +8,12 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: FileTransform@1
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    fileType: 'json'
+    targetFiles: '**/appsettings.json'
+    
 - script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
   displayName: Run unit tests
 
