@@ -1,7 +1,3 @@
-ENV ConnectionStrings__BananaConnectionMssql=
-ENV ConnectionStrings__SendGridAPIKey=
-ENV ConnectionStrings__ConfirmationEmailId=
-
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
 WORKDIR /app
 EXPOSE 80
