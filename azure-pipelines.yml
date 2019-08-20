@@ -13,7 +13,7 @@ steps:
     folderPath: '$(System.DefaultWorkingDirectory)'
     fileType: 'json'
     targetFiles: '**/appsettings.json'
-
+    
 - script: dotnet test API.UnitTests/API.UnitTests.csproj --logger trx
   displayName: Run unit tests
 
