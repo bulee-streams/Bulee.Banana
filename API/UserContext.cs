@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using System;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,7 +14,11 @@ namespace API.Context
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<User>().ToTable("User");
+            builder.Entity<User>().ToTable("User").HasData(
+            new User() { Id = Guid.NewGuid(), Username = "user",
+                                              Email = "user@email.com",
+                                              EmailConfirmationToken = Guid.Parse("A6A46A35-5165-4AB5-9E19-12764CFC2144"),
+                                              EmailConfirmed = false });
         }
     }
 }

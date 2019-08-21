@@ -36,7 +36,7 @@ namespace API.Email
         public async Task<HttpStatusCode> SendCofirmationEmail(string username, string emailAddress, Guid emailToken)
         {
             var url = BananaHttpContext.AppBaseUrl + "/api/v1/users/registration-complete/" + emailToken;
-            var objectData = new ConfirmationEmail() { UserName = username, Url = url };
+            var objectData = new ConfirmationEmail() { Username = username, Url = url };
 
             var result = await Send("Bulee Services", username, emailAddress,
                                     "banana@bulee.com", templateId, objectData);
