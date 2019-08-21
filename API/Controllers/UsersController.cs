@@ -30,7 +30,7 @@ namespace API.Controllers
         [HttpGet("test")]
         public string Test() => "This is a test endpoint";
 
-        [HttpPost("registration-complete/{token}")]
+        [HttpGet("registration-complete/{token}")]
         public async Task<IActionResult> RegistrationComplete(string token)
         {
             var valid = await userRepository.IsEmailConfirmationValid(token);
@@ -39,7 +39,7 @@ namespace API.Controllers
                 return BadRequest("Sorry this request is invalid");
             }
 
-            return Created("api/v1/users/registration-complete", "Your email has been confirmed");
+            return Ok();
         }
 
 
