@@ -5,7 +5,7 @@ namespace API.Models.ViewModels
     public class RegiserViewModel
     {
         [Required(ErrorMessage = "Username can't be empty or null")]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required(ErrorMessage = "Email can't be empty or null")]
         [EmailAddress(ErrorMessage = "Email address must be formatted correctly")]

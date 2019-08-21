@@ -52,7 +52,7 @@ namespace API.UnitTests
         {
           user = new RegiserViewModel()
           {
-              UserName = username,
+              Username = username,
               Email = email,
               Password = password
           };
