@@ -6,6 +6,7 @@ using API.Models.ViewModels;
 using API.Repositories.Interfaces;
 using API.Email.Interfaces;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace API.Controllers
 {
@@ -31,6 +32,8 @@ namespace API.Controllers
         public string Test() => "This is a test endpoint";
 
         [HttpGet("registration-complete/{token}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RegistrationComplete(string token)
         {
             var valid = await userRepository.IsEmailConfirmationValid(token);
@@ -44,6 +47,8 @@ namespace API.Controllers
 
 
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
            if(userRepository.DoesUsernameExist(data.Username)) {
