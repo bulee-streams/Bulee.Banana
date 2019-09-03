@@ -325,7 +325,7 @@ namespace API.UnitTests
             var result = await arrangement.SUT.RequestPasswordRest("user");
 
             // Assert
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<OkObjectResult>();
         }
 
         [Fact]
