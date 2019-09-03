@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
-namespace API
+namespace API.Helpers
 {
     public class PasswordEncryption
     {
