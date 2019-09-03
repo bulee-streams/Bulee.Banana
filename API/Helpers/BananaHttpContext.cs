@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace API
+namespace API.Helpers
 {
     public class BananaHttpContext
     {

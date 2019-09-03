@@ -10,3 +10,4 @@ services:
       - ConnectionStrings__BananaConnectionMssql= ${BananaConnection}
       - Keys__SendGridAPI= ${SendGridAPIKey}
       - Keys__ConfirmationEmailId= ${ConfirmationEmailId}
+      - Keys__JWTSecret= ${JWTSecret}

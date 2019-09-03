@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using API.Email.Interfaces;
-using API.Models;
 using Microsoft.Extensions.Configuration;
+using API.Models;
+using API.Helpers;
+using API.Email.Interfaces;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 

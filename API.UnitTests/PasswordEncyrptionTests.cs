@@ -1,6 +1,6 @@
-﻿using Xunit;
+﻿using API.Helpers;
+using Xunit;
 using FluentAssertions;
-
 
 namespace API.UnitTests
 {
