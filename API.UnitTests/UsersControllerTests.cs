@@ -86,6 +86,24 @@ namespace API.UnitTests
            return this;
         }
 
+        public ArrangementBuilder WithConfirmValidIsValid()
+        {
+           userRepository.Setup(u => u.IsEmailConfirmationValid(It.IsAny<string>())).ReturnsAsync(true);
+           return this;
+        }
+
+        public ArrangementBuilder WithCorrectLogin()
+        {
+           userRepository.Setup(u => u.Login(It.IsAny<string>(), It.IsAny<string>())).Returns("token");
+           return this;
+        }
+
+        public ArrangementBuilder WithInCorrectLogin()
+        {
+           userRepository.Setup(u => u.Login(It.IsAny<string>(), It.IsAny<string>())).Returns((string)null);
+           return this;
+        }
+
         public Arrangement Build()
             {
                 var logger = new Mock<ILogger<UsersController>>();
@@ -211,6 +229,70 @@ namespace API.UnitTests
             // Assert 
             var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
             resultMessage.Value.Should().Be("Sorry this email address has already been used");
+        }
+
+        [Fact]
+        public async Task RegistrationComplete_TokenIsValid_ShouldReturnOk()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithConfirmValidIsValid()
+                                .Build();
+            // Act 
+            var result = await arrangement.SUT.RegistrationComplete("token");
+
+            // Assert
+            result.Should().BeOfType<OkResult>();
+        }
+
+        [Fact]
+        public async Task RegistrationComplete_TokenIsInValid_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .Build();
+            // Act 
+            var result = await arrangement.SUT.RegistrationComplete("token");
+
+            // Assert
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry this request is invalid");
+        }
+
+        [Fact]
+        public void Login_WithCorrectDetails_ShouldReturnOk()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithCorrectLogin()
+                                .Build();
+
+            var data = new LoginViewModel() { Username = "username", Password = "password" };
+
+            // Act 
+            var result = arrangement.SUT.Login(data);
+
+            // Assert
+            var resultMessage = result.Should().BeOfType<OkObjectResult>().Subject;
+            resultMessage.Value.Should().Be("token");
+        }
+
+        [Fact]
+        public void Login_WithInCorrectDetails_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithInCorrectLogin()
+                                .Build();
+
+            var data = new LoginViewModel() { Username = "username", Password = "password" };
+
+            // Act 
+            var result = arrangement.SUT.Login(data);
+
+            // Assert
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry your username or password is invalid");
         }
     }
 }

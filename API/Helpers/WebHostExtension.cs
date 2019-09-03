@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace API
+namespace API.Helpers
 {
     public static class WebHostExtension
     {
