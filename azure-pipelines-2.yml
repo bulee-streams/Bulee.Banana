@@ -37,6 +37,7 @@ steps:
         BananaConnection=$(ConnectionStrings.BananaConnectionMssql)
         SendGridAPIKey=$(Keys.SendGridAPI)
         ConfirmationEmailId=$(Keys.ConfirmationEmailId)
+        JWTSecret=$(Keys.JWTSecret)
 
 - task: DockerCompose@0
   inputs:
@@ -49,4 +50,5 @@ steps:
         BananaConnection=$(ConnectionStrings.BananaConnectionMssql)
         SendGridAPIKey=$(Keys.SendGridAPI)
         ConfirmationEmailId=$(Keys.ConfirmationEmailId)
+        JWTSecret=$(Keys.JWTSecret)
     includeLatestTag: true
