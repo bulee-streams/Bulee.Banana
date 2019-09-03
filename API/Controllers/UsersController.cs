@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using API.Helpers;
+using API.Email.Interfaces;
 using API.Models.ViewModels;
 using API.Repositories.Interfaces;
-using API.Email.Interfaces;
-using System.Net;
 
 namespace API.Controllers
 {
@@ -30,7 +32,23 @@ namespace API.Controllers
         [HttpGet("test")]
         public string Test() => "This is a test endpoint";
 
+        [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult Login([FromBody] LoginViewModel data)
+        {
+            var token = userRepository.Login(data.Username, data.Password);
+
+            if(token == null) {
+                return BadRequest("Sorry your username or password is invalid");
+            }
+
+            return Ok(token);
+        }
+
         [HttpGet("registration-complete/{token}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RegistrationComplete(string token)
         {
             var valid = await userRepository.IsEmailConfirmationValid(token);
@@ -44,6 +62,8 @@ namespace API.Controllers
 
 
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegiserViewModel data)
         {
            if(userRepository.DoesUsernameExist(data.Username)) {

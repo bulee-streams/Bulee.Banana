@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using API.IntegrationTests.Models;
+using API.Models.ViewModels;
 using FluentAssertions;
 using Xunit;
 
@@ -79,6 +80,47 @@ namespace API.IntegrationTests
             // Assert
             httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             responseMessage.Should().Be("Sorry this request is invalid");
+        }
+
+        [Fact]
+        public async Task Endpoint_LoginWithCorrectUsername_ShouldReturnOkWithToken()
+        {
+            // Arrange
+            var user = new LoginViewModel() { Username = "user", Password = "password" };
+
+            // Act
+            var httpResponse = await client.PostAsJsonAsync("api/v1/users/login", user);
+
+            // Assert
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Endpoint_LoginWithCorrectEmail_ShouldReturnOkWithToken()
+        {
+            // Arrange
+            var user = new LoginViewModel() { Username = "user@email.com", Password = "password" };
+
+            // Act
+            var httpResponse = await client.PostAsJsonAsync("api/v1/users/login", user);
+
+            // Assert
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Endpoint_LoginWithInCorrectUsername_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var user = new LoginViewModel() { Username = "user1", Password = "password" };
+
+            // Act
+            var httpResponse = await client.PostAsJsonAsync("api/v1/users/login", user);
+            var responseMessage = await httpResponse.Content.ReadAsStringAsync();
+
+            // Assert
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseMessage.Should().Be("Sorry your username or password is invalid");
         }
     }
 }
