@@ -332,3 +332,5 @@ ASALocalRun/
 API/Dockerfile
 
 .env
+
+API/appsettings.Development.json

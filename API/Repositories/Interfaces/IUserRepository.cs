@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using API.Models;
 
 namespace API.Repositories.Interfaces
@@ -11,5 +12,9 @@ namespace API.Repositories.Interfaces
         bool DoesUsernameExist(string username);
         bool DoesEmailExist(string email);
         Task<bool> IsEmailConfirmationValid(string token);
+
+        Task<Guid> CreatePasswordResetToken(string username);
+
+        Task<bool> PasswordReset(Guid token, string password);
     }
 }

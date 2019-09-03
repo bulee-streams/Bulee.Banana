@@ -4,14 +4,16 @@ using API.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(UserContext))]
-    partial class UserContextModelSnapshot : ModelSnapshot
+    [Migration("20190903142907_BananaMigration2")]
+    partial class BananaMigration2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,13 +47,13 @@ namespace API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("72112158-50f3-43a6-80c3-8bc3ba33cf9d"),
+                            Id = new Guid("8cec4b25-4563-463f-a690-498f60c743e9"),
                             Email = "user@email.com",
                             EmailConfirmationToken = new Guid("a6a46a35-5165-4ab5-9e19-12764cfc2144"),
                             EmailConfirmed = false,
-                            PassworResetToken = new Guid("214065dd-36b2-4e5e-a67b-37aab766bafa"),
-                            Password = "Kg8UhoPIigwyNIUDxbSC+nkyX+TQ34kYksFZkWuAw/4=",
-                            Salt = new byte[] { 54, 54, 218, 252, 128, 49, 75, 36, 109, 26, 136, 21, 86, 217, 9, 189 },
+                            PassworResetToken = new Guid("00000000-0000-0000-0000-000000000000"),
+                            Password = "QWZjuWqZvjVItYJyHQc69LHCeYguawJdYgvELNszsdI=",
+                            Salt = new byte[] { 23, 69, 221, 70, 219, 2, 73, 116, 196, 47, 121, 144, 89, 11, 131, 74 },
                             Username = "user"
                         });
                 });
