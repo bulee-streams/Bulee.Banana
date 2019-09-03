@@ -25,7 +25,8 @@ namespace API.Helpers
                     EmailConfirmationToken = Guid.Parse("A6A46A35-5165-4AB5-9E19-12764CFC2144"),
                     EmailConfirmed = false,
                     Salt = password.Item1,
-                    Password = password.Item2
+                    Password = password.Item2,
+                    PassworResetToken = Guid.Parse("214065DD-36B2-4E5E-A67B-37AAB766BAFA")
                 });
         }
     }

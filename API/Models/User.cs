@@ -19,5 +19,7 @@ namespace API.Models
         public string Password { get; set; }
 
         public byte[] Salt { get; set; }
+
+        public Guid PassworResetToken { get; set; }
     }
 }

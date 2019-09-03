@@ -46,6 +46,33 @@ namespace API.Controllers
             return Ok(token);
         }
 
+        [HttpPost("password-reset")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PasswordRest([FromBody] PasswordResetViewModel data)
+        {
+            if(await userRepository.PasswordReset(data.Token, data.Password) == false) {
+                return BadRequest("Sorry the password wasn't reset");
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("request-password-reset/{username}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RequestPasswordRest(string username)
+        {
+            var token = await userRepository.CreatePasswordResetToken(username);
+
+            if(token == Guid.Empty) {
+                return BadRequest("Sorry this user doesn't exist");
+            }
+
+            return Ok(token.ToString());
+        }
+
+
         [HttpGet("registration-complete/{token}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

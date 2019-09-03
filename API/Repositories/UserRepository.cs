@@ -26,8 +26,7 @@ namespace API.Repositories
 
         public string Login(string username, string password)
         {
-            var user = context.Users.Where(u => u.Username.ToUpper() == username.ToUpper() || 
-                                                u.Email.ToUpper() == username.ToUpper()).FirstOrDefault();
+            var user = FindUser(username);
             
             if(user == null) {
                 return null;
@@ -88,5 +87,40 @@ namespace API.Repositories
 
             return false;
         }
+
+        public async Task<Guid> CreatePasswordResetToken(string username)
+        {
+            var user = FindUser(username);
+
+            if(user == null) {
+                return Guid.Empty;
+            }
+
+            user.PassworResetToken = Guid.NewGuid();
+            context.Update(user);
+
+            return await context.SaveChangesAsync() > 0 ? user.PassworResetToken : Guid.Empty;
+        }
+
+        public async Task<bool> PasswordReset(Guid token, string password)
+        {
+            var user = context.Users.Where(u => u.PassworResetToken == token).FirstOrDefault();
+
+            if(user == null) {
+                return false;
+            }
+
+            var passwordDetails = passwordEncrypt.HashReturnSalt(password);
+            user.Salt = passwordDetails.Item1;
+            user.Password = passwordDetails.Item2;
+
+            context.Update(user);
+
+            return await context.SaveChangesAsync() > 0 ? true : false;
+        }
+
+        private User FindUser(string username) =>
+                context.Users.Where(u => u.Username.ToUpper() == username.ToUpper() ||
+                u.Email.ToUpper() == username.ToUpper()).FirstOrDefault();
     }
 }
