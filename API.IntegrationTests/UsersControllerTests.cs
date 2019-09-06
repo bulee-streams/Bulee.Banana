@@ -122,5 +122,85 @@ namespace API.IntegrationTests
             httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             responseMessage.Should().Be("Sorry your username or password is invalid");
         }
+
+        [Fact]
+        public async Task Endpoint_RequestPasswordResetWithExistingUsername_ShouldReturnOk()
+        {
+
+            // Act
+            var httpResponse = await client.GetAsync("api/v1/users/request-password-reset/user");
+
+            // Assert
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Endpoint_RequestPasswordResetWithExistingEmail_ShouldReturnOk()
+        {
+            // Act
+            var httpResponse = await client.GetAsync("api/v1/users/request-password-reset/user@email.com");
+
+            // Assert
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Endpoint_RequestPasswordResetWithNonExistingUsername_ShouldReturnBadRequest()
+        {
+            // Act
+            var httpResponse = await client.GetAsync("api/v1/users/request-password-reset/user1");
+            var responseMessage = await httpResponse.Content.ReadAsStringAsync();
+
+            // Assert
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseMessage.Should().Be("Sorry this user doesn't exist");
+        }
+
+        [Fact]
+        public async Task Endpoint_PasswordResetWithCorrectToken_ShouldReturnOk()
+        {
+            // Assert
+            var newPassword = "NewPassword";
+
+            var httpGetToken = await client.GetAsync("api/v1/users/request-password-reset/user");
+            var responseToken = await httpGetToken.Content.ReadAsStringAsync();
+
+            var passwordToken = Guid.Parse(responseToken);
+
+            var password = new PasswordResetViewModel() { Token = passwordToken, Password = newPassword };
+            var user = new LoginViewModel() { Username = "user", Password = newPassword };
+
+            // Act
+            var passwordHttpResponse = await client.PostAsJsonAsync("api/v1/users/password-reset", password);
+            var loginhttpResponse = await client.PostAsJsonAsync("api/v1/users/login", user);
+
+
+            // Assert
+            passwordHttpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            loginhttpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Endpoint_PasswordResetWithInCorrectToken_ShouldReturnBadRequest()
+        {
+            // Assert
+            var newPassword = "NewPassword";
+
+            var password = new PasswordResetViewModel() { Token = Guid.NewGuid(), Password = newPassword };
+            var user = new LoginViewModel() { Username = "user", Password = newPassword };
+
+            // Act
+            var passwordHttpResponse = await client.PostAsJsonAsync("api/v1/users/password-reset", password);
+            var passwordResponseMessage = await passwordHttpResponse.Content.ReadAsStringAsync();
+
+            var loginhttpResponse = await client.PostAsJsonAsync("api/v1/users/login", user);
+
+
+            // Assert
+            passwordHttpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            passwordResponseMessage.Should().Be("Sorry the password wasn't reset");
+
+            loginhttpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
     }
 }

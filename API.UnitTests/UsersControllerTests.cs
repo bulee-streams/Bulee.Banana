@@ -86,7 +86,7 @@ namespace API.UnitTests
            return this;
         }
 
-        public ArrangementBuilder WithConfirmValidIsValid()
+        public ArrangementBuilder WithEmailConfirmValidIsValid()
         {
            userRepository.Setup(u => u.IsEmailConfirmationValid(It.IsAny<string>())).ReturnsAsync(true);
            return this;
@@ -101,6 +101,24 @@ namespace API.UnitTests
         public ArrangementBuilder WithInCorrectLogin()
         {
            userRepository.Setup(u => u.Login(It.IsAny<string>(), It.IsAny<string>())).Returns((string)null);
+           return this;
+        }
+
+        public ArrangementBuilder WithValidPasswordResetRequest()
+        {
+           userRepository.Setup(u => u.CreatePasswordResetToken(It.IsAny<string>())).ReturnsAsync(Guid.NewGuid());
+           return this;
+        }
+
+        public ArrangementBuilder WithInValidPasswordResetRequest()
+        {
+           userRepository.Setup(u => u.CreatePasswordResetToken(It.IsAny<string>())).ReturnsAsync(Guid.Empty);
+           return this;
+        }
+
+        public ArrangementBuilder WithValidPasswordReset()
+        {
+           userRepository.Setup(u => u.PasswordReset(It.IsAny<Guid>(), It.IsAny<string>())).ReturnsAsync(true);
            return this;
         }
 
@@ -236,7 +254,7 @@ namespace API.UnitTests
         {
             // Arrange
             var arrangement = new ArrangementBuilder()
-                                .WithConfirmValidIsValid()
+                                .WithEmailConfirmValidIsValid()
                                 .Build();
             // Act 
             var result = await arrangement.SUT.RegistrationComplete("token");
@@ -293,6 +311,71 @@ namespace API.UnitTests
             // Assert
             var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
             resultMessage.Value.Should().Be("Sorry your username or password is invalid");
+        }
+
+        [Fact]
+        public async Task RequestPasswordResetRequest_WithCorrectUsername_ShouldReturnOk()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithValidPasswordResetRequest()
+                                .Build();
+
+            // Act 
+            var result = await arrangement.SUT.RequestPasswordRest("user");
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+        }
+
+        [Fact]
+        public async Task PasswordResetRequest_WithInCorrectUsername_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithInValidPasswordResetRequest()
+                                .Build();
+
+            // Act 
+            var result = await arrangement.SUT.RequestPasswordRest("user");
+
+            // Assert
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry this user doesn't exist");
+        }
+
+        [Fact]
+        public async Task PasswordReset_WithCorrectUsername_ShouldReturnOk()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .WithValidPasswordReset()
+                                .Build();
+
+            var data = new PasswordResetViewModel() { Token = Guid.NewGuid(), Password = "password" };
+
+            // Act 
+            var result = await arrangement.SUT.PasswordRest(data);
+
+            // Assert
+            result.Should().BeOfType<OkResult>();
+        }
+
+        [Fact]
+        public async Task PasswordReset_WithInCorrectUsername_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var arrangement = new ArrangementBuilder()
+                                .Build();
+
+            var data = new PasswordResetViewModel() { Token = Guid.NewGuid(), Password = "password" };
+
+            // Act 
+            var result = await arrangement.SUT.PasswordRest(data);
+
+            // Assert
+            var resultMessage = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            resultMessage.Value.Should().Be("Sorry the password wasn't reset");
         }
     }
 }
